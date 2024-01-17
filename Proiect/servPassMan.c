@@ -39,7 +39,7 @@ void addUserDB(char username[], char parola[], char raspuns[])
 
     // verificam daca exista un username identic
     char query[100];
-    snprintf(query, sizeof(query), "SELECT COUNT(*) FROM users WHERE MASTusername = '%s'", username);
+    snprintf(query, sizeof(query), "SELECT COUNT(*) FROM users WHERE MASTusername = ?");
 
     sqlite3_stmt *checkStmt;
     int rc = sqlite3_prepare_v2(db, query, -1, &checkStmt, 0);
@@ -51,7 +51,7 @@ void addUserDB(char username[], char parola[], char raspuns[])
         closeDB();
         return;
     }
-
+    sqlite3_bind_text(checkStmt, 1, username, -1, SQLITE_STATIC);
     rc = sqlite3_step(checkStmt);
     if (rc != SQLITE_ROW)
     {
@@ -109,7 +109,7 @@ void checkCredentials(char MASTERusername[], char MASTERparola[], char toKeep[],
 
     // verificam daca exista userul inregistrat in tabela 'users' + verificam si daca parola introdusa este corecta
     char query[100];
-    snprintf(query, sizeof(query), "SELECT COUNT(*) FROM users WHERE MASTusername = '%s' AND MASTparola = '%s'", MASTERusername, MASTERparola);
+    snprintf(query, sizeof(query), "SELECT COUNT(*) FROM users WHERE MASTusername = ? AND MASTparola = ?");
 
     sqlite3_stmt *checkUserPassStmt;
     int rc = sqlite3_prepare_v2(db, query, -1, &checkUserPassStmt, 0);
@@ -121,7 +121,8 @@ void checkCredentials(char MASTERusername[], char MASTERparola[], char toKeep[],
         closeDB();
         return;
     }
-
+    sqlite3_bind_text(checkUserPassStmt, 1, MASTERusername, -1, SQLITE_STATIC);
+    sqlite3_bind_text(checkUserPassStmt, 2, MASTERparola, -1, SQLITE_STATIC);
     rc = sqlite3_step(checkUserPassStmt);
     if (rc != SQLITE_ROW)
     {
